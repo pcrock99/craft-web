@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Craft Web · ArtCraft 浏览器创作套件</title>
+<meta name="description" content="ArtCraft 系列八个开源创作工具的浏览器入口：图片、矢量、版式、PDF、文档、表格、演示与 CAD 制图，全部在本地浏览器中运行。">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0a0b0e">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230a0b0e'/%3E%3Cpath d='M16 7.5l7 4v9l-7 4-7-4v-9z' fill='none' stroke='%2338bdf8' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M16 16.5l7-4M16 16.5v8M16 16.5l-7-4' fill='none' stroke='%23a78bfa' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#0a0b0e;
+    --glow-a:rgba(56,189,248,.10);
+    --glow-b:rgba(167,139,250,.10);
+    --text:#eef1f6;
+    --muted:#8d96a6;
+    --faint:#616a7a;
+    --card:#121419;
+    --card-2:#0d0f13;
+    --border:rgba(255,255,255,.075);
+    --border-hover:rgba(255,255,255,.18);
+    --shadow:0 20px 44px -26px rgba(0,0,0,.95);
+    --field:rgba(255,255,255,.04);
+    --chip:rgba(255,255,255,.055);
+    color-scheme:dark;
+  }
+  :root[data-theme="light"]{
+    --bg:#f6f7f9;
+    --glow-a:rgba(56,189,248,.20);
+    --glow-b:rgba(167,139,250,.18);
+    --text:#0e131a;
+    --muted:#5b6573;
+    --faint:#8b94a2;
+    --card:#ffffff;
+    --card-2:#fbfcfe;
+    --border:rgba(15,23,42,.09);
+    --border-hover:rgba(15,23,42,.22);
+    --shadow:0 18px 36px -26px rgba(15,23,42,.55);
+    --field:#ffffff;
+    --chip:rgba(15,23,42,.045);
+    color-scheme:light;
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    min-height:100%;
+    color:var(--text);
+    font-family:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;
+    -webkit-font-smoothing:antialiased;
+    background:
+      radial-gradient(920px 540px at 10% -10%, var(--glow-a), transparent 62%),
+      radial-gradient(780px 480px at 92% -4%, var(--glow-b), transparent 64%),
+      var(--bg);
+    background-attachment:fixed;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:52px 24px 64px}
+
+  /* ---------- header ---------- */
+  header{display:flex;align-items:flex-end;justify-content:space-between;gap:22px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:15px;min-width:0}
+  .mark{
+    width:46px;height:46px;border-radius:14px;flex:none;display:grid;place-items:center;
+    background:linear-gradient(150deg,rgba(56,189,248,.20),rgba(167,139,250,.16));
+    border:1px solid rgba(255,255,255,.10);
+    box-shadow:0 10px 26px -16px rgba(56,189,248,.75);
+  }
+  :root[data-theme="light"] .mark{border-color:rgba(15,23,42,.08)}
+  h1{margin:0;font-size:27px;font-weight:650;letter-spacing:-.02em;line-height:1.22}
+  h1 b{font-weight:650}
+  h1 span{
+    background:linear-gradient(92deg,#38bdf8,#a78bfa 55%,#f472b6);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .sub{margin:5px 0 0;font-size:13px;color:var(--muted);letter-spacing:.005em}
+
+  .tools{display:flex;align-items:center;gap:10px}
+  .search{
+    display:flex;align-items:center;gap:9px;height:42px;padding:0 12px;border-radius:12px;
+    background:var(--field);border:1px solid var(--border);transition:border-color .18s,box-shadow .18s;
+  }
+  .search:focus-within{border-color:var(--border-hover);box-shadow:0 0 0 3px rgba(56,189,248,.13)}
+  .search svg{color:var(--faint);flex:none}
+  .search input{
+    width:186px;border:0;outline:none;background:none;color:var(--text);
+    font:inherit;font-size:14px;transition:width .22s ease;
+  }
+  .search input::placeholder{color:var(--faint)}
+  .search:focus-within input{width:216px}
+  kbd{
+    font:inherit;font-size:11px;line-height:1;padding:3px 6px;border-radius:5px;color:var(--faint);
+    border:1px solid var(--border);background:var(--chip);
+  }
+  .theme{
+    width:42px;height:42px;flex:none;border-radius:12px;display:grid;place-items:center;cursor:pointer;
+    color:var(--muted);background:var(--field);border:1px solid var(--border);
+    transition:color .18s,border-color .18s,transform .18s;
+  }
+  .theme:hover{color:var(--text);border-color:var(--border-hover);transform:translateY(-1px)}
+  :root[data-theme="dark"] .icon-moon{display:none}
+  :root[data-theme="light"] .icon-sun{display:none}
+
+  /* ---------- meta strip ---------- */
+  .meta{display:flex;flex-wrap:wrap;gap:7px;margin:26px 0 20px}
+  .chip{
+    font-size:11.5px;letter-spacing:.01em;color:var(--muted);
+    padding:5px 10px;border-radius:999px;background:var(--chip);border:1px solid var(--border);
+  }
+
+  /* ---------- grid ---------- */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(246px,1fr));gap:13px}
+  .card{
+    position:relative;display:flex;flex-direction:column;gap:9px;
+    padding:19px;border-radius:16px;overflow:hidden;
+    color:inherit;text-decoration:none;
+    border:1px solid var(--border);
+    background:linear-gradient(163deg,var(--card),var(--card-2));
+    transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease;
+    animation:rise .52s cubic-bezier(.2,.7,.3,1) both;
+    animation-delay:calc(var(--i,0) * 38ms);
+  }
+  .card::before{
+    content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .25s ease;
+    background:radial-gradient(320px 130px at 16% -10%, var(--c-soft), transparent 72%);
+  }
+  .card:hover{transform:translateY(-3px);border-color:var(--border-hover);box-shadow:var(--shadow)}
+  .card:hover::before{opacity:1}
+  .card:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+  .card[hidden]{display:none}
+
+  .head{display:flex;align-items:center;gap:10px}
+  .icon{
+    width:44px;height:44px;flex:none;border-radius:13px;display:grid;place-items:center;
+    color:var(--c);background:var(--c-soft);border:1px solid var(--c-soft);
+    transition:transform .25s ease;
+  }
+  .card:hover .icon{transform:scale(1.06) rotate(-3deg)}
+  .tag{
+    margin-left:auto;font-size:11px;letter-spacing:.03em;color:var(--faint);
+    padding:3px 8px;border-radius:999px;border:1px solid var(--border);background:var(--chip);
+  }
+  .name{margin:6px 0 0;font-size:16.5px;font-weight:600;letter-spacing:-.01em}
+  .en{margin:0;font-size:11.5px;color:var(--faint);letter-spacing:.01em}
+  .desc{margin:1px 0 0;font-size:13px;line-height:1.62;color:var(--muted)}
+  .go{
+    margin-top:auto;padding-top:13px;display:flex;align-items:center;gap:6px;
+    font-size:12px;color:var(--faint);transition:color .2s;
+  }
+  .go svg{transition:transform .2s ease}
+  .card:hover .go{color:var(--c)}
+  .card:hover .go svg{transform:translateX(3px)}
+
+  .empty{margin:36px 0;text-align:center;font-size:13.5px;color:var(--faint)}
+
+  /* ---------- footer ---------- */
+  footer{
+    margin-top:40px;padding-top:18px;border-top:1px solid var(--border);
+    display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    font-size:11.5px;line-height:1.7;color:var(--faint);
+  }
+  footer .hint{max-width:640px}
+  .dot{opacity:.45;margin:0 7px}
+
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+  @media (max-width:640px){
+    .wrap{padding:36px 18px 48px}
+    h1{font-size:23px}
+    .tools{width:100%}
+    .search{flex:1}
+    .search input,.search:focus-within input{width:100%}
+    .grid{grid-template-columns:1fr}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation:none!important;transition:none!important}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <span class="mark" aria-hidden="true">
+        <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="url(#lg)" stroke-width="1.7" stroke-linejoin="round">
+          <defs>
+            <linearGradient id="lg" x1="3" y1="3" x2="21" y2="21" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stop-color="#38bdf8"/><stop offset=".55" stop-color="#a78bfa"/><stop offset="1" stop-color="#f472b6"/>
+            </linearGradient>
+          </defs>
+          <path d="M12 2.6l8 4.6v9.6l-8 4.6-8-4.6V7.2z"/>
+          <path d="M12 12l8-4.6M12 12v9M12 12L4 7.4"/>
+        </svg>
+      </span>
+      <div>
+        <h1>Craft <span>Web</span></h1>
+        <p class="sub">ArtCraft 系列 · 八个开源创作工具，直接在浏览器里跑</p>
+      </div>
+    </div>
+
+    <div class="tools">
+      <label class="search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+          <circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/>
+        </svg>
+        <input id="q" type="search" placeholder="搜索工具" autocomplete="off" aria-label="搜索工具">
+        <kbd>/</kbd>
+      </label>
+      <button class="theme" id="theme" type="button" aria-label="切换明暗主题">
+        <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6L17 7M7 17l-1.4 1.4"/>
+        </svg>
+        <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 14.4A8.2 8.2 0 0 1 9.6 4a8.4 8.4 0 1 0 10.4 10.4z"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="meta">
+    <span class="chip">8 个应用</span>
+    <span class="chip">WebAssembly</span>
+    <span class="chip">无需账号</span>
+    <span class="chip">文件不上传</span>
+  </div>
+
+  <main class="grid" id="grid">
+
+    <a class="card" href="./photocraft/" style="--c:#38bdf8;--c-soft:rgba(56,189,248,.13);--i:0"
+       data-key="photocraft 图片 照片 修图 位图 图层 蒙版 画笔 调色 psd 滤镜 图像">
+      <div class="head">
+        <span class="icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="16" rx="3"/>
+            <circle cx="8.4" cy="9.4" r="1.6"/>
+            <path d="M4.4 17.6l4.4-4.4 2.9 2.9 3.3-3.6 4.6 5.1"/>
+          </svg>
+        </span>
+        <span class="tag">图片</span>
+      </div>
+      <h2 class="name">PhotoCraft</h2>
+      <p class="en">Your everyday photo studio.</p>
+      <p class="desc">图层、蒙版、画笔与调色，能直接打开 PSD 文件继续编辑。</p>
+      <span class="go">开始修图
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M12 6l6 6-6 6"/></svg>
+      </span>
+    </a>
+
+    <a class="card" href="./vectorcraft/" style="--c:#a78bfa;--c-soft:rgba(167,139,250,.13);--i:1"
+       data-key="vectorcraft 矢量 插画 路径 曲线 锚点 图标 logo 海报 设计">
+      <div class="head">
+        <span class="icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4.6 18C8.2 6.6 15.8 6.6 19.4 18"/>
+            <rect x="2.8" y="16.2" width="3.6" height="3.6" rx=".8"/>
+            <rect x="17.6" y="16.2" width="3.6" height="3.6" rx=".8"/>
+            <circle cx="12" cy="10.2" r="1.5"/>
+          </svg>
+        </span>
+        <span class="tag">矢量</span>
+      </div>
+      <h2 class="name">VectorCraft</h2>
+      <p class="en">A sharper way to draw.</p>
+      <p class="desc">用路径、曲线与文字排一张图，从小图标到整幅插画。</p>
+      <span class="go">开始绘制
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M12 6l6 6-6 6"/></svg>
+      </span>
+    </a>
+
+    <a class="card" href="./designcraft/" style="--c:#f472b6;--c-soft:rgba(244,114,182,.13);--i:2"
+       data-key="designcraft 版式 排版 页面 跨页 母版 样式 杂志 画册 出版物 indesign idml">
+      <div class="head">
+        <span class="icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2.8" y="4" width="8.2" height="16" rx="1.6"/>
+            <rect x="13" y="4" width="8.2" height="16" rx="1.6"/>
+            <path d="M5.2 8.4h3.4M5.2 11.4h3.4M15.4 8.4h3.4M15.4 11.4h3.4M5.2 14.4h2.2"/>
+          </svg>
+        </span>
+        <span class="tag">版式</span>
+      </div>
+      <h2 class="name">DesignCraft</h2>
+      <p class="en">Give your story a layout.</p>
+      <p class="desc">跨页、母版与段落样式，做画册、手册这类讲究版面的稿子。</p>
+      <span class="go">开始排版
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M12 6l6 6-6 6"/></svg>
+      </span>
+    </a>
+
+    <a class="card" href="./pdfcraft/" style="--c:#f87171;--c-soft:rgba(248,113,113,.13);--i:3"
+       data-key="pdfcraft pdf 文档 阅读 批注 注释 合并 拆分 重排 页面 表单 签名">
+      <div class="head">
+        <span class="icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6.6 3h7.2L18.6 7.8V21H6.6z"/>
+            <path d="M13.6 3v5h5"/>
+            <path d="M9.2 12.6h6.4M9.2 16h4.4"/>
+          </svg>
+        </span>
+        <span class="tag">PDF</span>
+      </div>
+      <h2 class="name">PdfCraft</h2>
+      <p class="en">Put your pages in order.</p>
+      <p class="desc">阅读、批注、重排与合并页面，日常文档处理一次搞定。</p>
+      <span class="go">打开 PDF
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M12 6l6 6-6 6"/></svg>
+      </span>
+    </a>
+
+    <a class="card" href="./wordcraft/" style="--c:#60a5fa;--c-soft:rgba(96,165,250,.13);--i:4"
+       data-key="wordcraft 文档 文字 写作 排版 样式 表格 页眉 页脚 word docx">
+      <div class="head">
+        <span class="icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="3" width="16" height="18" rx="2.2"/>
+            <path d="M8 8.2h8M8 12h8M8 15.8h5"/>
+          </svg>
+        </span>
+        <span class="tag">文档</span>
+      </div>
+      <h2 class="name">WordCraft</h2>
+      <p class="en">Find the words. Make them yours.</p>
+      <p class="desc">分页写作、样式与大纲，写正式文稿用的文字处理台。</p>
+      <span class="go">开始写作
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M12 6l6 6-6 6"/></svg>
+      </span>
+    </a>
+
+    <a class="card" href="./gridcraft/" style="--c:#34d399;--c-soft:rgba(52,211,153,.13);--i:5"
+       data-key="gridcraft 表格 电子表格 单元格 公式 图表 数据 excel xlsx 统计">
+      <div class="head">
+        <span class="icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="16" rx="2.2"/>
+            <path d="M3 9.3h18M3 14.6h18M9.2 4v16M15 4v16"/>
+          </svg>
+        </span>
+        <span class="tag">表格</span>
+      </div>
+      <h2 class="name">GridCraft</h2>
+      <p class="en">Make sense of the numbers.</p>
+      <p class="desc">单元格、公式与图表，把日常数据摊开算清楚。</p>
+      <span class="go">打开表格
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M12 6l6 6-6 6"/></svg>
+      </span>
+    </a>
+
+    <a class="card" href="./deckcraft/" style="--c:#fb923c;--c-soft:rgba(251,146,60,.13);--i:6"
+       data-key="deckcraft 演示 幻灯片 演示文稿 ppt pptx 母版 主题 演讲者 汇报">
+      <div class="head">
+        <span class="icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3.6" width="18" height="12.4" rx="2.2"/>
+            <path d="M12 16v4M8.4 20.4h7.2"/>
+          </svg>
+        </span>
+        <span class="tag">演示</span>
+      </div>
+      <h2 class="name">DeckCraft</h2>
+      <p class="en">Give your ideas the floor.</p>
+      <p class="desc">母版、主题与演讲者视图，把思路铺成一整套幻灯片。</p>
+      <span class="go">开始做演示
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M12 6l6 6-6 6"/></svg>
+      </span>
+    </a>
+
+    <a class="card" href="./cadcraft/" style="--c:#94a3b8;--c-soft:rgba(148,163,184,.13);--i:7"
+       data-key="cadcraft cad 制图 工程 图纸 几何 图层 标注 尺寸 命令行 户 snap">
+      <div class="head">
+        <span class="icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4.2"/>
+            <path d="M12 3.2v4.2M12 16.6v4.2M3.2 12h4.2M16.6 12h4.2"/>
+            <path d="M17.6 3.4h3v3"/>
+          </svg>
+        </span>
+        <span class="tag">制图</span>
+      </div>
+      <h2 class="name">CADCraft</h2>
+      <p class="en">Think it. Draft it.</p>
+      <p class="desc">几何、图层与尺寸标注，敲命令画图的轻量制图台。</p>
+      <span class="go">开始制图
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M12 6l6 6-6 6"/></svg>
+      </span>
+    </a>
+
+  </main>
+
+  <p class="empty" id="empty" hidden>没有匹配的工具，换个关键词试试。</p>
+
+  <footer>
+    <span class="hint">全部处理都在你的浏览器里完成，文件不会上传。首次打开某个工具需要下载它自己的编辑器内核，体积较大，请给它一点时间。</span>
+    <span>Craft Web <span class="dot">·</span> ArtCraft 开源套件 <span class="dot">·</span> MIT / Apache-2.0</span>
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  var KEY = "craftweb-theme";
+
+  function apply(theme) {
+    root.setAttribute("data-theme", theme);
+    try { localStorage.setItem(KEY, theme); } catch (e) {}
+  }
+
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  if (saved === "light" || saved === "dark") {
+    apply(saved);
+  } else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) {
+    root.setAttribute("data-theme", "light");
+  }
+
+  document.getElementById("theme").addEventListener("click", function () {
+    apply(root.getAttribute("data-theme") === "dark" ? "light" : "dark");
+  });
+
+  var q = document.getElementById("q");
+  var empty = document.getElementById("empty");
+  var cards = Array.prototype.slice.call(document.querySelectorAll(".card"));
+
+  function filter() {
+    var v = q.value.trim().toLowerCase();
+    var shown = 0;
+    cards.forEach(function (card) {
+      var hit = !v || (card.getAttribute("data-key") || "").toLowerCase().indexOf(v) > -1;
+      card.hidden = !hit;
+      if (hit) shown++;
+    });
+    empty.hidden = shown > 0;
+  }
+
+  q.addEventListener("input", filter);
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "/" && document.activeElement !== q) {
+      e.preventDefault();
+      q.focus();
+      q.select();
+    } else if (e.key === "Escape" && document.activeElement === q) {
+      q.value = "";
+      filter();
+      q.blur();
+    }
+  });
+})();
+</script>
+</body>
+</html>
